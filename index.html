@@ -1,0 +1,208 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Life</title>
+<link rel="stylesheet" href="style.css">
+<script type="text/javascript">
+//square object constructor for each spot on game board
+function square(value,row,col) {
+    this.value = value;
+    this.row = row;
+    this.col = col;
+    this.newValue = value;
+}
+
+
+
+function playGame(){
+	for (r=0;r<rMax;r++) {
+     for (c=0;c<cMax;c++) {
+     	//if neighboring square is off of the board, give eval item a 2. 2 means disregard.
+     	//check 8 neighboring squares for their value
+     	
+     	 if(r-1 < 0){
+       	 var e1 = 2;
+       }else{
+       	 var e1 = board[r-1][c].value;
+       }
+       if(r+1 >= rMax){
+       	 var e2 = 2;
+       }else{
+       	 var e2 = board[r+1][c].value;
+       }
+       if(r-1 < 0 || c+1 >= cMax){
+       	 var e3 = 2;
+       }else{
+       	 var e3 = board[r-1][c+1].value;
+       }
+       if(c+1 >= cMax){
+       	 var e4 = 2;
+       }else{
+       	 var e4 = board[r][c+1].value;
+       }
+       if(r+1 >= rMax || c+1 >= cMax){
+       	 var e5 = 2;
+       }else{
+       	 var e5 = board[r+1][c+1].value;
+       }
+       if(r-1 < 0 || c-1 < 0){
+       	 var e6 = 2;
+       }else{
+       	 var e6 = board[r-1][c-1].value;
+       }
+       if(c-1 < 0){
+       	 var e7 = 2;
+       }else{
+       	 var e7 = board[r][c-1].value;
+       }
+       if(r+1 >= rMax || c-1 < 0){
+       	 var e8 = 2;
+       }else{
+       	 var e8 = board[r+1][c-1].value;
+       }
+                
+       var outcome = evaluate(r,c,board[r][c],e1,e2,e3,e4,e5,e6,e7,e8);
+       var newvalue = 0;
+       
+       //set square's NEW value to outcome so we don't interfere with calculations still being done on CURRENT version of board
+       if(outcome != 'dead'){
+       		if(outcome == 'alive'){
+          	newvalue = 1;
+          	board[r][c].newValue = newvalue;
+          }
+       }else{
+       		board[r][c].newValue = newvalue;
+       }
+      
+       //if outcome is 2, it stays the same
+     }
+  }
+  
+  writeBoard(board,rMax,cMax);
+}
+
+function evaluate(r,c,current,e1,e2,e3,e4,e5,e6,e7,e8){
+	var liveNeighbors = 0;
+	for (var i = 3, j = arguments.length; i < j; i++){
+    if(arguments[i] == 1)
+      liveNeighbors += 1;
+  }
+  
+  //debugging - prints to console so I can debug
+  
+  //console.log(e1+' '+e2+' '+e3+' '+e4+' '+e5+' '+e6+' '+e7+' '+e8);
+  //console.log('['+r+']['+c+']'+liveNeighbors);
+  
+  if(current.value == 1){
+    if(liveNeighbors < 2)
+      return 'dead';
+    if(liveNeighbors > 3)
+      return 'dead';
+    if(liveNeighbors == 2 || liveNeighbors == 3)
+    	return 'stay'; //means do nothing
+  }else{
+  	if(liveNeighbors == 3)
+    	return 'alive';
+  }
+  	
+}
+
+//writes array values to game board
+function writeBoard(board,rMax,cMax){
+  var pgstring = '';
+	var allDead = 0;
+  
+  for (r=0;r<rMax;r++) {
+   for (c=0;c<cMax;c++) {
+   		//get new values for new iteration of game and display
+       pgstring += board[r][c].newValue;
+       if(board[r][c].newValue == 1){
+       	allDead = 1;
+       }
+       //set old value to new value so the next calculations use the new values
+       board[r][c].value = board[r][c].newValue;
+   }
+   pgstring += '<br>';
+  }
+	
+  
+  var elemP = document.createElement('p');
+  elemP.innerHTML = pgstring;
+  document.body.appendChild(elemP);
+  if(allDead == 0){
+  	var elemP2 = document.createElement('strong');
+  	elemP2.innerHTML = ':(';
+    document.body.appendChild(elemP2);
+    document.getElementById('play').style.display = 'none';
+  }
+  
+}
+</script>
+</head>
+
+
+
+<body>
+
+<div id="header">
+	<h1 class="headtext">The Game of Life</h1>
+</div>
+
+<button onclick="location.reload()">
+New Game
+</button>
+
+<button id="play" onclick="playGame()">
+Play
+</button><br><br>
+
+<span>1 = Alive</span><br>
+<span>0 = Dead</span><br>
+<p id="pid"></p>
+
+
+<script>
+var rMax = 6; //num rows
+var cMax = 8; //num columns
+
+var board = new Array(); //game board multi-dem array
+
+//outer loop constructs rows
+for (r=0;r<rMax;r++) {
+	board[r] = new Array();
+
+  //inner loop constructs columns
+  for (c=0;c<cMax;c++) {
+   var rnum = Math.random();
+		
+   //1:4 ratio of alive to dead squares 
+   if(rnum > .25){
+  	 var mySquare = new square(0,r,c);
+     board[r][c] = mySquare;
+   }else{
+   	 var mySquare = new square(1,r,c);
+     board[r][c] = mySquare;
+   }
+  }
+}
+
+//writes array values to game board
+var pgstring = '';
+  
+for (r=0;r<rMax;r++) {
+ for (c=0;c<cMax;c++) {
+     pgstring += board[r][c].value;
+ }
+ pgstring += '<br>';
+}
+  
+document.getElementById('pid').innerHTML = pgstring;
+
+</script>
+
+
+</body>
+
+</html>

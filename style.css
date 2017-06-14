@@ -1,0 +1,18 @@
+﻿p{
+  border:1px solid gray;
+  border-radius:5px;
+  width:100px;
+  text-align:center;
+  letter-spacing: 4px;
+  float:left;
+  margin-right:25px;
+  padding:5px;
+ }
+ 
+ .headtext{
+	font-family:Arial, Helvetica, sans-serif;
+}
+
+strong{
+	color:#FF5050;
+}
